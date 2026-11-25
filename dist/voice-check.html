@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ラケットノート 音声の動作確認</title>
+<link rel="stylesheet" href="workspace.css">
+<link rel="stylesheet" href="history-ledger.css">
+<script src="model.js" defer></script>
+<script src="workspace-ui.js" defer></script>
+<script src="workspace-forms.js" defer></script>
+<script src="voice-input.js" defer></script>
+<script src="history-ledger.js" defer></script>
+<script src="voice-check.js" defer></script>
+<body><main style="max-width:1100px;margin:auto;padding:20px">
+<h1>音声入力の動作確認</h1>
+<p>「音声で入力」を押し、次の一文を話してください。測定データ・下書きは保存しません。</p>
+<blockquote style="padding:16px;margin:16px 0;border-left:4px solid #1958d7;background:#fff;font-size:1.125rem">スイングウエイト300、バランス320ミリ、ツイストウエイト13、重量330グラム、グリップ幅33ミリ、厚さ29ミリ</blockquote>
+<p>マイクの許可が出た場合、このページでの音声確認に使います。音声認識はブラウザーのサービスへ接続します。</p>
+<p id="voice-check-summary" role="status" style="padding:12px;border:1px solid #7f8c9c;background:white">実音声はまだ確認していません。</p>
+<div id="voice-check-form" class="history-ledger"></div>
+<details style="margin:16px 0"><summary>認識イベントと反映結果</summary><pre id="voice-check-results" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre></details>
+<button id="voice-check-copy" type="button" class="button">確認結果をコピー</button>
+<a class="button" href="./">ラケットノートへ戻る</a>
+</main></body></html>

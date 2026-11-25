@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8fc">
+  <meta name="description" content="自分のラケットのスペックと測定条件を、シンプルに記録。">
+  <title>ラケットノート</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231958d7'/%3E%3Cellipse cx='36' cy='23' rx='13' ry='18' transform='rotate(35 36 23)' fill='none' stroke='white' stroke-width='4'/%3E%3Cpath d='M26 37L12 56' stroke='white' stroke-width='6'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="workspace.css">
+  <link rel="stylesheet" href="history-ledger.css">
+  <script src="vendor/firebase-app-compat.js" defer></script>
+  <script src="vendor/firebase-auth-compat.js" defer></script>
+  <script src="vendor/firebase-firestore-compat.js" defer></script>
+  <script src="model.js" defer></script>
+  <script src="protocol.js" defer></script>
+  <script src="cloud.js" defer></script>
+  <script src="workspace-ui.js" defer></script>
+  <script src="workspace-forms.js" defer></script>
+  <script src="voice-input.js" defer></script>
+  <script src="history-ledger.js" defer></script>
+  <script src="report-reader.js" defer></script>
+  <script src="workspace-app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">本文へ</a>
+  <div class="app-shell"><aside class="sidebar">
+    <a class="brand" href="#/" aria-label="ラケットノート 一覧へ">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 36 36" fill="none"><ellipse cx="22" cy="12" rx="8" ry="10" transform="rotate(35 22 12)" stroke="currentColor" stroke-width="2"/><path d="M16 20L5 34M20 4L29 15M16 9L26 21M16 17L26 4M19 21L30 9" stroke="currentColor" stroke-width="1.4"/></svg></span>
+      <span>ラケットノート<small>RACKET NOTE</small></span>
+    </a>
+    <nav class="main-nav" aria-label="メインナビゲーション"><a href="#/" data-nav="rackets" class="active"><span class="nav-icon" aria-hidden="true">▦</span>ラケット</a><a href="#/compare" data-nav="compare"><span class="nav-icon" aria-hidden="true">⇄</span>比較<span id="nav-compare-count" class="nav-count"></span></a></nav>
+    <div class="sidebar-bottom"><p>ラケットと測定のノート</p><p id="account-email">Googleアカウントで共有</p></div>
+  </aside><div class="workspace"><header class="workspace-header"><span id="cloud-status" class="cloud-status" role="status">接続確認中</span><div class="header-actions"><button id="backup-button" class="button subtle" disabled>バックアップ</button><button id="account-button" class="button subtle" hidden>ログアウト</button></div></header>
+  <div id="storage-error" class="notice error" role="alert" hidden></div>
+  <main id="main" tabindex="-1">
+    <section class="empty"><h1>ラケットノート</h1><p>サーバーへの接続を確認しています。</p></section>
+  </main>
+  <footer class="page-footer">記録はFirebaseのサーバーに保存。 同じGoogleアカウントでPC・スマートフォンから利用できます。</footer></div></div>
+  <aside id="compare-tray" class="compare-tray" aria-label="比較する記録" hidden></aside>
+  <dialog id="editor" aria-labelledby="editor-title"><div class="dialog-head"><h2 id="editor-title"></h2><button type="button" class="icon-button" id="editor-close" aria-label="閉じる">×</button></div><div id="editor-content"></div></dialog>
+  <dialog id="backup-dialog" aria-labelledby="backup-title"><div class="dialog-head"><h2 id="backup-title">記録のバックアップ</h2><button class="icon-button" data-close="backup-dialog" aria-label="閉じる">×</button></div><div class="dialog-body">
+    <p>記録はFirebaseのサーバーに保存されます。同じGoogleアカウントでログインすると、別の端末からも開けます。念のため手元にもコピーを残せます。入力途中の下書きは、このブラウザーだけに残ります。</p>
+    <div class="backup-option"><div><h3>すべての記録を保存</h3><p>ラケット・測定履歴をJSONファイルに書き出します。</p></div><button class="button primary" id="export-json">JSONを保存</button></div>
+    <div class="backup-option"><div><h3>バックアップを読み込む</h3><p>このアプリのJSONに対応。新しい記録を追加し、同じIDの記録は上書きしません。</p></div><label class="button" for="import-file">ファイルを選ぶ</label><input id="import-file" type="file" accept=".json,application/json" class="file-input"></div>
+    <div class="backup-option"><div><h3>表として書き出す</h3><p>Excelなどで見返すためのCSV。復元にはJSONを使います。</p></div><button class="button" id="export-csv">CSVを保存</button></div>
+    <p id="backup-result" role="status" class="muted"></p>
+  </div></dialog>
+  <dialog id="confirm-dialog" aria-labelledby="confirm-title"><div class="dialog-body"><h2 id="confirm-title">変更を破棄しますか？</h2><p id="confirm-message"></p><div class="form-actions"><button class="button" id="confirm-no">戻る</button><button class="button danger" id="confirm-yes">破棄する</button></div></div></dialog>
+  <dialog id="record-picker" aria-labelledby="picker-title"><div class="dialog-head"><h2 id="picker-title">比較する記録を選ぶ</h2><button class="icon-button" data-close="record-picker" aria-label="閉じる">×</button></div><div class="picker-search-wrap"><label class="sr-only" for="picker-search">比較する記録を検索</label><input id="picker-search" type="search" placeholder="ラケット名・日付・測定条件で検索"></div><div id="picker-list"></div><div class="form-actions"><span id="picker-selection-count"></span><button id="picker-done" class="button primary">選んだ記録を表示</button></div></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <noscript><p class="notice error">このアプリを使うには、ブラウザーのJavaScriptを有効にしてください。</p></noscript>
+</body>
+</html>

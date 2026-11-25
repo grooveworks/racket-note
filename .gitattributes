@@ -1,0 +1,2 @@
+# Keep the published asset hashes identical on Windows and Linux.
+dist/** -text

@@ -1,0 +1,12 @@
+{
+  "name": "racket-note",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Independent racket measurements and custom history",
+  "scripts": {
+    "test": "node --test check.cjs cloud-test.cjs workspace-test.cjs measurement-conditions-test.cjs integration-test.cjs capture-test.cjs individual-test.cjs connection-timing-test.cjs && node controller-smoke.cjs && node static-check.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0"
+  }
+}

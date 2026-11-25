@@ -1,0 +1,22 @@
+# ラケットノート
+
+公開先: https://grooveworks.github.io/racket-note/
+
+測定条件とSW・BP・TW・重量・グリップ寸法を、同じ履歴一覧で記録・比較する独立アプリです。TENNISDB本体のコードや入口を変更せず、このリポジトリだけで管理・公開します。
+
+「測る」は選んだ履歴の条件だけを再利用し、今回の測定値は空欄から始めます。名前の訂正は個体IDと履歴を保持します。「同じモデルをもう1本」は別IDと個体名で登録し、測定値を複写しません。引き継いだ履歴・原文・実測と予想の区別を保持します。
+
+保存先は既存のFirebaseプロジェクト `tennis-db-ca9ae`、認証本人専用の `users/{uid}/racketNoteEntries` です。同じGoogleアカウントでログインして利用します。今回の公開先変更ではデータの移行・再登録・書き換えを行いません。Googleログインの許可ドメインはホスト名 `grooveworks.github.io` を使用します。
+
+音声ボタンはブラウザーの認識サービスを利用します。音声・文章の反映後に内容を確認して保存します。実マイクによる認識は未確認で、自動テストの模擬結果を実音声の確認済みとは扱いません。
+
+## 開発と公開
+
+`dist/` が公開する静的ファイルです。ハッシュ経路を使うため、サブディレクトリ `/racket-note/` のまま履歴と比較を開けます。公開ワークフローはテスト後に `dist/` だけをGitHub Pagesへ配信します。個人データ・認証トークン・作業用ファイルは公開しません。
+
+```
+node --test check.cjs cloud-test.cjs workspace-test.cjs measurement-conditions-test.cjs integration-test.cjs capture-test.cjs individual-test.cjs connection-timing-test.cjs
+node static-check.cjs
+```
+
+初回は従来の公開版と同じコードを基準にしています。公開サブパスに合わせた戻りリンクと、登録後に閉じたフォームが残り次の入力へ干渉する問題を修正しています。入力終了・切替・アカウント変更で旧フォームを破棄し、取消・入力先の重複を防ぎます。`release-manifest.json` に元公開版と今回の資産ハッシュを記録します。従来のFirebase Hostingはこの作業では変更・停止しません。
