@@ -5,7 +5,7 @@
   const DRAFT_KEY='racket-note-draft-';
   let state=M.empty(),selected=[],baseline='',onlyDifferent=false,activeEdit=null,dirty=false,restoredDraft=null,confirmAction=null,saving=false,hasLoaded=false,toastTimer;
   let connection={user:null,ready:false,status:'loading'},filters={query:'',state:'',kind:'',sort:'recent',source:'personal'};
-  let reports=[],stopVoice=()=>{};const historyBases={};
+  let reports=[],stopVoice=()=>{};const historyBases={},collapsedRackets=new Set();
   const id=()=>crypto.randomUUID(),stamp=()=>new Date().toISOString(),racketFor=key=>state.rackets.find(r=>r.id===key),isCompare=()=>location.hash.startsWith('#/compare');
   function message(text,error=false) {const area=document.getElementById('toast');clearTimeout(toastTimer);area.textContent=text;area.classList.toggle('toast-error',error);area.hidden=false;toastTimer=setTimeout(()=>area.hidden=true,5000);}
   function storageError(text) {const area=document.getElementById('storage-error');area.textContent=text;area.hidden=false;}
@@ -30,6 +30,15 @@
   document.getElementById('confirm-no').addEventListener('click',()=>{confirmDialog.close();confirmAction=null;});
   document.getElementById('confirm-yes').addEventListener('click',()=>{const action=confirmAction;confirmAction=null;confirmDialog.close();if(action)Promise.resolve(action()).catch(error=>storageError(error.message));});
   confirmDialog.addEventListener('cancel',()=>confirmAction=null);
+  function syncHistoryGroups() {
+    main.querySelectorAll('[data-hl-group]').forEach(group=>{
+      const collapsed=collapsedRackets.has(group.dataset.hlGroup),toggle=group.querySelector('[data-hl-toggle]');
+      group.dataset.collapsed=String(collapsed);group.querySelector('[data-hl-content]').hidden=collapsed;
+      toggle.setAttribute('aria-expanded',String(!collapsed));toggle.setAttribute('aria-label',toggle.dataset.name+'の測定履歴を'+(collapsed?'開く':'閉じる'));
+      toggle.querySelector('[data-hl-fold-label]').textContent=collapsed?'開く':'閉じる';toggle.querySelector('[data-hl-fold-icon]').textContent=collapsed?'＋':'−';
+      const base=group.querySelector('[data-hl-base]')?.closest('label');if(base)base.hidden=collapsed;
+    });
+  }
   function selectionUI() {
     selected=selected.filter(i=>racketFor(i.racketId)?.records.some(r=>r.id===i.recordId));
     if(!selected.some(i=>i.recordId===baseline))baseline=selected[0]?.recordId||'';
@@ -39,6 +48,7 @@
     const count=document.getElementById('picker-selection-count');if(count)count.textContent=`${selected.length} / 4 件を選択中`;
     document.querySelectorAll('[data-compare]').forEach(n=>{n.checked=selected.some(i=>i.recordId===n.dataset.compare);n.closest('tr')?.classList.toggle('selected-row',n.checked);});
     document.querySelectorAll('.main-nav a').forEach(n=>{const active=n.dataset.nav===(isCompare()?'compare':'rackets');n.classList.toggle('active',active);if(active)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');});
+    syncHistoryGroups();
   }
   function render() {
     if(activeEdit?.inline&&document.getElementById('edit-form')){selectionUI();return;}
@@ -67,6 +77,7 @@
     const existing=recordId?racket?.records.find(r=>r.id===recordId):null;
     if(existing?.source){message('引き継いだ記録は原文を保持します。「この条件で記録」から新しい測定を追加できます。');return;}
     if(recordId&&!existing){message('対象の記録は削除されています。下書きは保持しています。',true);return;}
+    if(type==='record')collapsedRackets.delete(racketId);
     if(type==='record'&&!main.querySelector(`[data-hl-body="${CSS.escape(racketId)}"]`)){filters.racket=racketId;filters.source='personal';filters.query='';main.innerHTML=H.overview(state,selected,filters,restoredDraft,historyBases,reports);}
     activeEdit={type,cloneFromId:cloneFromId||draftMeta?.cloneFromId,inline:type==='record',racketId,recordId,sourceId:sourceId||draftMeta?.sourceId,uid:connection.user.uid,targetId:draftMeta?.targetId||recordId||(type==='racket'&&racket?racket.id:id()),initialRecordId:draftMeta?.initialRecordId||id(),createdAt:draftMeta?.createdAt||stamp(),base:draftMeta?.base||structuredClone(state),revisions:draftMeta?.revisions||C.revisions()};
     const source=racket?.records.find(r=>r.id===activeEdit.sourceId)||M.sorted(racket?.records||[])[0];
@@ -83,7 +94,7 @@
     if(type==='racket'){const voice=document.createElement('div');voice.innerHTML=V.controls(true,restoreValues?.voiceDraft||'');form.querySelector('.identity-section').prepend(voice);}
     stopVoice=V.attach(form,()=>{dirty=true;storeDraft();});
     form.addEventListener('submit',event=>{event.preventDefault();submitEdit();});document.getElementById('cancel-edit').addEventListener('click',closeEditor);document.getElementById('delete-item')?.addEventListener('click',deleteItem);
-    if(!activeEdit.inline)editor.showModal();(form.querySelector('[name=name]')||form.querySelector('[name=sw]'))?.focus({preventScroll:true});if(activeEdit.inline)form.scrollIntoView({block:'nearest'});
+    syncHistoryGroups();if(!activeEdit.inline)editor.showModal();(form.querySelector('[name=name]')||form.querySelector('[name=sw]'))?.focus({preventScroll:true});if(activeEdit.inline)form.scrollIntoView({block:'nearest'});
   }
   function finishEditor() {clearDraft();stopVoice();document.querySelector('.hl-inline-row')?.remove();dirty=false;activeEdit=null;editor.close();document.getElementById('editor-content').replaceChildren();state=C.data();render();}
   function closeEditor() {if(saving)return;if(dirty)ask('変更を破棄しますか？','まだサーバーに保存していない入力があります。','破棄する',finishEditor);else finishEditor();}
@@ -129,11 +140,14 @@
     selectionUI();if(isCompare()&&!picker.open)render();
   });
   document.addEventListener('click',event=>{
+    const fold=event.target.closest('[data-hl-toggle]');if(fold){const key=fold.dataset.hlToggle;if(activeEdit?.inline&&activeEdit.racketId===key&&!collapsedRackets.has(key)){message('入力中のラケットは、保存または取消してから閉じられます。');return;}if(collapsedRackets.has(key))collapsedRackets.delete(key);else collapsedRackets.add(key);syncHistoryGroups();return;}
     const detail=event.target.closest('[data-hl-detail]');if(detail){const row=main.querySelector(`[data-hl-detail-row="${CSS.escape(detail.dataset.hlDetail)}"]`);row.hidden=!row.hidden;detail.setAttribute('aria-expanded',String(!row.hidden));return;}
     const quick=event.target.closest('[data-hl-set]');if(quick){const form=document.getElementById('edit-form');form.elements.namedItem(quick.dataset.hlSet).value=quick.dataset.value;form.dispatchEvent(new Event('change',{bubbles:true}));return;}
     const report=event.target.closest('[data-hl-link-report]');if(report){if(activeEdit){message('先に入力中の測定を保存または取消してください。');return;}const source=reports.find(r=>r.id===report.dataset.hlLinkReport),target=main.querySelector(`[data-hl-report-target="${CSS.escape(source.id)}"]`).value;try{const next=H.linkedReport(source,target,state);commit(next,structuredClone(state),C.revisions()).then(ok=>{if(ok){state=C.data();render();message('元チャット付きで過去の測定を追加しました');}});}catch(error){message(error.message,true);}return;}
     const button=event.target.closest('[data-action]');
     if(button){const action=button.dataset.action;
+      if(action==='collapse-all'){state.rackets.forEach(r=>collapsedRackets.add(r.id));if(activeEdit?.inline){collapsedRackets.delete(activeEdit.racketId);message('入力中のラケットは開いたまま、ほかの履歴を閉じました。');}syncHistoryGroups();return;}
+      if(action==='expand-all'){collapsedRackets.clear();syncHistoryGroups();return;}
       if(editor.open&&!activeEdit&&['new-racket','edit-racket','new-record'].includes(action))editor.close();
       if(action==='login'){button.disabled=true;C.login().catch(error=>storageError(error.message)).finally(()=>button.disabled=false);}
       else if(action==='reload')location.reload();else if(action==='start-measurement')startMeasurement();else if(action==='new-racket')openEdit('racket');else if(action==='clone-racket')openEdit('racket',null,null,null,null,null,button.dataset.id);else if(action==='edit-racket')openEdit('racket',button.dataset.id);else if(action==='new-record')openEdit('record',button.dataset.id);else if(action==='edit-record')openEdit('record',button.dataset.id,button.dataset.record);else if(action==='reuse-record')openEdit('record',button.dataset.id,null,null,null,button.dataset.record);
@@ -148,7 +162,7 @@
   document.getElementById('account-button').addEventListener('click',()=>{if(saving)return;const logout=()=>C.logout().catch(error=>storageError(error.message));if(dirty)ask('ログアウトしますか？','入力はこのブラウザーの下書きに残します。同じアカウントで再開できます。','ログアウト',()=>{storeDraft();return logout();});else logout();});
   C.init(update=>{
     const oldUid=connection.user?.uid;
-    if(oldUid&&oldUid!==update.user?.uid){if(dirty)storeDraft();stopVoice();document.querySelector('.hl-inline-row')?.remove();[editor,confirmDialog,backup,picker].forEach(n=>n.close());document.getElementById('editor-content').replaceChildren();activeEdit=null;dirty=false;selected=[];baseline='';hasLoaded=false;reports=[];filters={query:'',kind:'',state:'',sort:'recent',source:'personal'};Object.keys(historyBases).forEach(k=>delete historyBases[k]);}
+    if(oldUid&&oldUid!==update.user?.uid){if(dirty)storeDraft();stopVoice();document.querySelector('.hl-inline-row')?.remove();[editor,confirmDialog,backup,picker].forEach(n=>n.close());document.getElementById('editor-content').replaceChildren();activeEdit=null;dirty=false;selected=[];baseline='';hasLoaded=false;reports=[];collapsedRackets.clear();filters={query:'',kind:'',state:'',sort:'recent',source:'personal'};Object.keys(historyBases).forEach(k=>delete historyBases[k]);}
     connection=update;if(oldUid!==update.user?.uid)readDraft();if(update.ready)hasLoaded=true;
     const status=document.getElementById('cloud-status');status.dataset.state=update.status;status.textContent=({loading:'接続確認中',connected:'サーバー接続済み',saving:'サーバーに保存中',offline:'サーバー未接続',error:'接続・保存エラー','signed-out':'ログインしてください'})[update.status]||'接続確認中';
     document.getElementById('backup-button').disabled=!hasLoaded||!update.user||saving;document.getElementById('account-button').hidden=!update.user;document.getElementById('account-button').title=update.user?.email||'';document.getElementById('account-email').textContent=update.user?.email||'Googleアカウントで共有';

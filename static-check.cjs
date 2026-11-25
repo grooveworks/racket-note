@@ -6,10 +6,10 @@ const expected=manifest.assets.map(item=>item.name).sort(),actual=files(dist).ma
 for(const item of manifest.assets){const data=fs.readFileSync(path.join(dist,item.name));assert.equal(hash(data),item.sha256,item.name);if(item.name.endsWith('.js'))new vm.Script(data.toString(),{filename:item.name});}
 for(const page of ['index.html','diagnostics.html','voice-check.html']){
  const html=fs.readFileSync(path.join(dist,page),'utf8');
- for(const match of html.matchAll(/(?:src|href)="([^"]+)"/g)){const ref=match[1];if(/^(?:#|data:|https?:)/.test(ref))continue;assert(!ref.startsWith('/'),page+' must preserve /racket-note/');assert(fs.existsSync(path.join(dist,ref)),page+' missing '+ref);}
+ for(const match of html.matchAll(/(?:src|href)="([^"]+)"/g)){const ref=match[1];if(/^(?:#|data:|https?:)/.test(ref))continue;assert(!ref.startsWith('/'),page+' must preserve /racket-note/');const localRef=ref.split(/[?#]/)[0];assert(fs.existsSync(path.join(dist,localRef)),page+' missing '+ref);if(['history-ledger.css','history-ledger.js','workspace-app.js'].includes(localRef))assert.equal(new URL(ref,'https://grooveworks.github.io/racket-note/').searchParams.get('v'),manifest.version,page+' must load one consistent release');}
  assert(!/<script[^>]+src="(?:tennisdb-workspace|tennisdb-link|legacy-bridge|app)\.js"/.test(html),page+' must use the independent workspace');
 }
-for(const name of ['cloud.js','model.js','protocol.js','history-ledger.js','workspace-forms.js','voice-input.js']){const asset=manifest.assets.find(item=>item.name===name);assert.equal(asset.sha256,asset.previousPublishedSha256,name+' must retain published behavior and storage');}
+for(const name of ['cloud.js','model.js','protocol.js','workspace-forms.js','voice-input.js']){const asset=manifest.assets.find(item=>item.name===name);assert.equal(asset.sha256,asset.previousPublishedSha256,name+' must retain published behavior and storage');}
 const cloud=fs.readFileSync(path.join(dist,'cloud.js'),'utf8');assert(cloud.includes("projectId:'tennis-db-ca9ae'"));assert(cloud.includes("collection('racketNoteEntries')"));
 assert.match(fs.readFileSync(path.join(dist,'voice-check.html'),'utf8'),/href="\.\/">ラケットノートへ戻る/);
 console.log('Static release checks passed: '+expected.length+' assets, subpath links, independent entry points, unchanged storage and measurement code.');

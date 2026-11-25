@@ -1,122 +1,146 @@
 {
   "app": "racket-note",
-  "version": "2026-11-25.github-pages.1",
+  "version": "2026-11-25.github-pages.2",
   "publicUrl": "https://grooveworks.github.io/racket-note/",
   "previousPublishedUrl": "https://tennis-db-racket-note.web.app/",
   "assets": [
     {
       "name": "cloud.js",
       "sha256": "ccfd0467cd91b1a744ccb906fbbfc72034dfe0eb53cf5d52f2b217418f61ef2b",
-      "previousPublishedSha256": "ccfd0467cd91b1a744ccb906fbbfc72034dfe0eb53cf5d52f2b217418f61ef2b"
+      "previousPublishedSha256": "ccfd0467cd91b1a744ccb906fbbfc72034dfe0eb53cf5d52f2b217418f61ef2b",
+      "previousReleaseSha256": "ccfd0467cd91b1a744ccb906fbbfc72034dfe0eb53cf5d52f2b217418f61ef2b"
     },
     {
       "name": "diagnostics.html",
-      "sha256": "3a2a1f24304ebdfe25758d05d3e22d00f0f2ecd953f3c5dbe3dd1b2881a14b85",
-      "previousPublishedSha256": "3a2a1f24304ebdfe25758d05d3e22d00f0f2ecd953f3c5dbe3dd1b2881a14b85"
+      "sha256": "098f4e37369d28ad10a657d314057cf256cfa0ed39895ababf882b511fc67b10",
+      "previousPublishedSha256": "3a2a1f24304ebdfe25758d05d3e22d00f0f2ecd953f3c5dbe3dd1b2881a14b85",
+      "previousReleaseSha256": "3a2a1f24304ebdfe25758d05d3e22d00f0f2ecd953f3c5dbe3dd1b2881a14b85"
     },
     {
       "name": "history-ledger.css",
-      "sha256": "c0f82d637bb96ec9ff8f98b9fd751aee2627649c2aeced8f670f8310f88506fc",
-      "previousPublishedSha256": "c0f82d637bb96ec9ff8f98b9fd751aee2627649c2aeced8f670f8310f88506fc"
+      "sha256": "158e0c2677c0f02d53ed9268a66649493033291ca91074fe2924f294c2196f48",
+      "previousPublishedSha256": "c0f82d637bb96ec9ff8f98b9fd751aee2627649c2aeced8f670f8310f88506fc",
+      "previousReleaseSha256": "c0f82d637bb96ec9ff8f98b9fd751aee2627649c2aeced8f670f8310f88506fc"
     },
     {
       "name": "history-ledger.js",
-      "sha256": "0e9c8fb14e939263780b1efbeb1a6bfb0a41e94b6c73b3106e28655de045f975",
-      "previousPublishedSha256": "0e9c8fb14e939263780b1efbeb1a6bfb0a41e94b6c73b3106e28655de045f975"
+      "sha256": "e0033815bb76c1fbfb148b05455af29e0d68399a57fe36078438c706cba1f4c1",
+      "previousPublishedSha256": "0e9c8fb14e939263780b1efbeb1a6bfb0a41e94b6c73b3106e28655de045f975",
+      "previousReleaseSha256": "0e9c8fb14e939263780b1efbeb1a6bfb0a41e94b6c73b3106e28655de045f975"
     },
     {
       "name": "index.html",
-      "sha256": "25d17d94ac4cbf6d5a9cdb6beb5fe6858cc303cd9f8d98a549f8576821a0ee23",
-      "previousPublishedSha256": "25d17d94ac4cbf6d5a9cdb6beb5fe6858cc303cd9f8d98a549f8576821a0ee23"
+      "sha256": "6e12b6df2df824b1f5e0a628d3dd86772a08875b5d2ca0b056abd405229c09bb",
+      "previousPublishedSha256": "25d17d94ac4cbf6d5a9cdb6beb5fe6858cc303cd9f8d98a549f8576821a0ee23",
+      "previousReleaseSha256": "25d17d94ac4cbf6d5a9cdb6beb5fe6858cc303cd9f8d98a549f8576821a0ee23"
     },
     {
       "name": "legacy-bridge.js",
       "sha256": "a3e61435af4f913daeb2e6651b0a390ed121c1a707776416708c35678c369c3c",
-      "previousPublishedSha256": "a3e61435af4f913daeb2e6651b0a390ed121c1a707776416708c35678c369c3c"
+      "previousPublishedSha256": "a3e61435af4f913daeb2e6651b0a390ed121c1a707776416708c35678c369c3c",
+      "previousReleaseSha256": "a3e61435af4f913daeb2e6651b0a390ed121c1a707776416708c35678c369c3c"
     },
     {
       "name": "model.js",
       "sha256": "37ffd213b353ad505e309d108bef0946471262080a0e2b4c9e061f4a2e5eb892",
-      "previousPublishedSha256": "37ffd213b353ad505e309d108bef0946471262080a0e2b4c9e061f4a2e5eb892"
+      "previousPublishedSha256": "37ffd213b353ad505e309d108bef0946471262080a0e2b4c9e061f4a2e5eb892",
+      "previousReleaseSha256": "37ffd213b353ad505e309d108bef0946471262080a0e2b4c9e061f4a2e5eb892"
     },
     {
       "name": "protocol.js",
       "sha256": "3914c1bc4de14960d5edc8c71d3b9b6cd594402fdb6cbe13be21b1f6a1c07403",
-      "previousPublishedSha256": "3914c1bc4de14960d5edc8c71d3b9b6cd594402fdb6cbe13be21b1f6a1c07403"
+      "previousPublishedSha256": "3914c1bc4de14960d5edc8c71d3b9b6cd594402fdb6cbe13be21b1f6a1c07403",
+      "previousReleaseSha256": "3914c1bc4de14960d5edc8c71d3b9b6cd594402fdb6cbe13be21b1f6a1c07403"
     },
     {
       "name": "report-reader.js",
       "sha256": "31f5aeffe8a5f1d19231bfe64f5f5a0a49e3737f275bef26306dadf2edaec535",
-      "previousPublishedSha256": "31f5aeffe8a5f1d19231bfe64f5f5a0a49e3737f275bef26306dadf2edaec535"
+      "previousPublishedSha256": "31f5aeffe8a5f1d19231bfe64f5f5a0a49e3737f275bef26306dadf2edaec535",
+      "previousReleaseSha256": "31f5aeffe8a5f1d19231bfe64f5f5a0a49e3737f275bef26306dadf2edaec535"
     },
     {
       "name": "tennisdb-link.js",
       "sha256": "0cc16bd1105fde2b48ebc9a128683ba7dcfd6f3c67a4d7b1123ae83b06b20ee4",
-      "previousPublishedSha256": "0cc16bd1105fde2b48ebc9a128683ba7dcfd6f3c67a4d7b1123ae83b06b20ee4"
+      "previousPublishedSha256": "0cc16bd1105fde2b48ebc9a128683ba7dcfd6f3c67a4d7b1123ae83b06b20ee4",
+      "previousReleaseSha256": "0cc16bd1105fde2b48ebc9a128683ba7dcfd6f3c67a4d7b1123ae83b06b20ee4"
     },
     {
       "name": "vendor/firebase-app-compat.js",
       "sha256": "367d0b9aef0a8c08717135c67d4bcc26a5d4a7103e228a1da7c33aedb91e285f",
-      "previousPublishedSha256": "367d0b9aef0a8c08717135c67d4bcc26a5d4a7103e228a1da7c33aedb91e285f"
+      "previousPublishedSha256": "367d0b9aef0a8c08717135c67d4bcc26a5d4a7103e228a1da7c33aedb91e285f",
+      "previousReleaseSha256": "367d0b9aef0a8c08717135c67d4bcc26a5d4a7103e228a1da7c33aedb91e285f"
     },
     {
       "name": "vendor/firebase-auth-compat.js",
       "sha256": "53de4f22563944851e5cbde4d89e930996b00301904adb69767d9e8b814c8247",
-      "previousPublishedSha256": "53de4f22563944851e5cbde4d89e930996b00301904adb69767d9e8b814c8247"
+      "previousPublishedSha256": "53de4f22563944851e5cbde4d89e930996b00301904adb69767d9e8b814c8247",
+      "previousReleaseSha256": "53de4f22563944851e5cbde4d89e930996b00301904adb69767d9e8b814c8247"
     },
     {
       "name": "vendor/firebase-firestore-compat.js",
       "sha256": "b9ae3c42f01a771c1455a2283f1afbfad1866f728c24282816b715c15f8db040",
-      "previousPublishedSha256": "b9ae3c42f01a771c1455a2283f1afbfad1866f728c24282816b715c15f8db040"
+      "previousPublishedSha256": "b9ae3c42f01a771c1455a2283f1afbfad1866f728c24282816b715c15f8db040",
+      "previousReleaseSha256": "b9ae3c42f01a771c1455a2283f1afbfad1866f728c24282816b715c15f8db040"
     },
     {
       "name": "vendor/LICENSE",
       "sha256": "065e45b5674f9bf76670496e5472611b3fbd87fbeaf99336725430a9909cb687",
-      "previousPublishedSha256": "065e45b5674f9bf76670496e5472611b3fbd87fbeaf99336725430a9909cb687"
+      "previousPublishedSha256": "065e45b5674f9bf76670496e5472611b3fbd87fbeaf99336725430a9909cb687",
+      "previousReleaseSha256": "065e45b5674f9bf76670496e5472611b3fbd87fbeaf99336725430a9909cb687"
     },
     {
       "name": "voice-check.html",
-      "sha256": "a2fff77899acc09cf9829c43da4df138ba1f8b00a3ead3ebf4083ca5c5cf21aa",
-      "previousPublishedSha256": "a7cdca330ecb5a1e77e47187801b51b79b7bf6309a0b8fb9df6b5e70d7c6c70a"
+      "sha256": "5ca9b282a4d2da63d241bd5d293295646b893882ab2b423fe5df1efa1ee69f0f",
+      "previousPublishedSha256": "a7cdca330ecb5a1e77e47187801b51b79b7bf6309a0b8fb9df6b5e70d7c6c70a",
+      "previousReleaseSha256": "a2fff77899acc09cf9829c43da4df138ba1f8b00a3ead3ebf4083ca5c5cf21aa"
     },
     {
       "name": "voice-check.js",
       "sha256": "3546eb06adf5fc3939ae3f32e0949891c9ec5ab4e178c768b25ced2a686527ba",
-      "previousPublishedSha256": "3546eb06adf5fc3939ae3f32e0949891c9ec5ab4e178c768b25ced2a686527ba"
+      "previousPublishedSha256": "3546eb06adf5fc3939ae3f32e0949891c9ec5ab4e178c768b25ced2a686527ba",
+      "previousReleaseSha256": "3546eb06adf5fc3939ae3f32e0949891c9ec5ab4e178c768b25ced2a686527ba"
     },
     {
       "name": "voice-input.js",
       "sha256": "5e97bd716379b6bc376d0911070d3380697254e08b10a6a1413161d311a85085",
-      "previousPublishedSha256": "5e97bd716379b6bc376d0911070d3380697254e08b10a6a1413161d311a85085"
+      "previousPublishedSha256": "5e97bd716379b6bc376d0911070d3380697254e08b10a6a1413161d311a85085",
+      "previousReleaseSha256": "5e97bd716379b6bc376d0911070d3380697254e08b10a6a1413161d311a85085"
     },
     {
       "name": "workspace-app.js",
-      "sha256": "a2c5312488e7748bbe8104c13dab666420b49d06d2daf58a52ffa24ccca565df",
-      "previousPublishedSha256": "34d6c05e66a498786c3e3a884819e73a1dc0bf0f3135cdaf5f90e97f088c4476"
+      "sha256": "b85a2733b8ee345c42787ae69e846202945a7d8a784f439235041085dc987960",
+      "previousPublishedSha256": "34d6c05e66a498786c3e3a884819e73a1dc0bf0f3135cdaf5f90e97f088c4476",
+      "previousReleaseSha256": "a2c5312488e7748bbe8104c13dab666420b49d06d2daf58a52ffa24ccca565df"
     },
     {
       "name": "workspace-forms.js",
       "sha256": "4342a1cb5c7077eaa91767decbe3cfbdadddf4f4229a29dfcdec594d42d9f856",
-      "previousPublishedSha256": "4342a1cb5c7077eaa91767decbe3cfbdadddf4f4229a29dfcdec594d42d9f856"
+      "previousPublishedSha256": "4342a1cb5c7077eaa91767decbe3cfbdadddf4f4229a29dfcdec594d42d9f856",
+      "previousReleaseSha256": "4342a1cb5c7077eaa91767decbe3cfbdadddf4f4229a29dfcdec594d42d9f856"
     },
     {
       "name": "workspace-ui.js",
       "sha256": "439c594eff5a32cdf55cdbe35486653e4a73cd10d47db81dbfee5d070f2f8bc6",
-      "previousPublishedSha256": "439c594eff5a32cdf55cdbe35486653e4a73cd10d47db81dbfee5d070f2f8bc6"
+      "previousPublishedSha256": "439c594eff5a32cdf55cdbe35486653e4a73cd10d47db81dbfee5d070f2f8bc6",
+      "previousReleaseSha256": "439c594eff5a32cdf55cdbe35486653e4a73cd10d47db81dbfee5d070f2f8bc6"
     },
     {
       "name": "workspace.css",
       "sha256": "294afa8e739098ab7361c8864cabdc324bcefb0561a75f24a5087f91f3b116aa",
-      "previousPublishedSha256": "294afa8e739098ab7361c8864cabdc324bcefb0561a75f24a5087f91f3b116aa"
+      "previousPublishedSha256": "294afa8e739098ab7361c8864cabdc324bcefb0561a75f24a5087f91f3b116aa",
+      "previousReleaseSha256": "294afa8e739098ab7361c8864cabdc324bcefb0561a75f24a5087f91f3b116aa"
     },
     {
       "name": ".nojekyll",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "previousPublishedSha256": null
+      "previousPublishedSha256": null,
+      "previousReleaseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
   ],
   "changes": [
-    "voice-check.html: preserve /racket-note/ on return",
-    "workspace-app.js: remove closed editor forms on finish, switch, and account change"
+    "Fold racket histories individually or all together while retaining identity and count",
+    "Keep racket name, individual and condition search visible",
+    "Preserve folding through search, comparison and refresh; keep active measurement visible",
+    "Version the related markup, controller and stylesheet consistently"
   ]
 }
