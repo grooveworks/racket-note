@@ -5,7 +5,7 @@
   const DRAFT_KEY='racket-note-draft-';
   let state=M.empty(),selected=[],baseline='',onlyDifferent=false,activeEdit=null,dirty=false,restoredDraft=null,confirmAction=null,saving=false,hasLoaded=false,toastTimer;
   let connection={user:null,ready:false,status:'loading'},filters={query:'',state:'',kind:'',sort:'recent',source:'personal'};
-  let reports=[],stopVoice=()=>{},newMark='',savedBar=null,reg=null;const historyBases={},collapsedRackets=new Set();let openDetail=null;
+  let reports=[],stopVoice=()=>{},newMark='',savedBar=null,reg=null;const historyBases={},collapsedRackets=new Set(),seenRackets=new Set();let openDetail=null;
   const id=()=>crypto.randomUUID(),stamp=()=>new Date().toISOString(),racketFor=key=>state.rackets.find(r=>r.id===key),isCompare=()=>location.hash.startsWith('#/compare');
   function message(text,error=false) {const area=document.getElementById('toast');clearTimeout(toastTimer);area.textContent=text;area.classList.toggle('toast-error',error);area.hidden=false;toastTimer=setTimeout(()=>area.hidden=true,5000);}
   function storageError(text) {const area=document.getElementById('storage-error');area.textContent=text;area.hidden=false;}
@@ -32,7 +32,9 @@
   confirmDialog.addEventListener('cancel',()=>confirmAction=null);
   function syncHistoryGroups() {
     main.querySelectorAll('[data-hl-group]').forEach(group=>{
-      const collapsed=collapsedRackets.has(group.dataset.hlGroup),toggle=group.querySelector('[data-hl-toggle]');
+      // 初めて画面に出たラケットは閉じた状態で始める。入力の画面が開いているラケットだけは開いたままにする。
+      const key=group.dataset.hlGroup;if(!seenRackets.has(key)){seenRackets.add(key);if(!(activeEdit?.inline&&activeEdit.racketId===key))collapsedRackets.add(key);}
+      const collapsed=collapsedRackets.has(key),toggle=group.querySelector('[data-hl-toggle]');
       group.dataset.collapsed=String(collapsed);group.querySelector('[data-hl-content]').hidden=collapsed;
       toggle.setAttribute('aria-expanded',String(!collapsed));toggle.setAttribute('aria-label',toggle.dataset.name+'の測定履歴を'+(collapsed?'開く':'閉じる'));
       toggle.querySelector('[data-hl-fold-label]').textContent=collapsed?'開く':'閉じる';toggle.querySelector('[data-hl-fold-icon]').textContent=collapsed?'＋':'−';
@@ -223,7 +225,7 @@
   document.getElementById('account-button').addEventListener('click',()=>{if(saving)return;const logout=()=>C.logout().catch(error=>storageError(error.message));if(dirty)ask('ログアウトしますか？','入力はこのブラウザーの下書きに残します。同じアカウントで再開できます。','ログアウト',()=>{storeDraft();return logout();});else logout();});
   C.init(update=>{
     const oldUid=connection.user?.uid;
-    if(oldUid&&oldUid!==update.user?.uid){if(dirty)storeDraft();stopVoice();document.querySelector('.hl-inline-row')?.remove();[editor,confirmDialog,backup,picker].forEach(n=>n.close());document.getElementById('editor-content').replaceChildren();activeEdit=null;dirty=false;selected=[];baseline='';hasLoaded=false;reports=[];collapsedRackets.clear();openDetail=null;newMark='';savedBar=null;document.getElementById('saved-bar')?.remove();filters={query:'',kind:'',state:'',sort:'recent',source:'personal'};Object.keys(historyBases).forEach(k=>delete historyBases[k]);}
+    if(oldUid&&oldUid!==update.user?.uid){if(dirty)storeDraft();stopVoice();document.querySelector('.hl-inline-row')?.remove();[editor,confirmDialog,backup,picker].forEach(n=>n.close());document.getElementById('editor-content').replaceChildren();activeEdit=null;dirty=false;selected=[];baseline='';hasLoaded=false;reports=[];collapsedRackets.clear();seenRackets.clear();openDetail=null;newMark='';savedBar=null;document.getElementById('saved-bar')?.remove();filters={query:'',kind:'',state:'',sort:'recent',source:'personal'};Object.keys(historyBases).forEach(k=>delete historyBases[k]);}
     connection=update;if(oldUid!==update.user?.uid)readDraft();if(update.ready)hasLoaded=true;
     const status=document.getElementById('cloud-status');status.dataset.state=update.status;status.textContent=({loading:'接続確認中',connected:'サーバー接続済み',saving:'サーバーに保存中',offline:'サーバー未接続',error:'接続・保存エラー','signed-out':'ログインしてください'})[update.status]||'接続確認中';
     document.getElementById('backup-button').disabled=!hasLoaded||!update.user||saving;document.getElementById('account-button').hidden=!update.user;document.getElementById('account-button').title=update.user?.email||'';document.getElementById('account-email').textContent=update.user?.email||'Googleアカウントで共有';

@@ -1,6 +1,6 @@
 {
   "app": "racket-note",
-  "version": "2026-11-28.github-pages.1",
+  "version": "2026-11-28.github-pages.2",
   "publicUrl": "https://grooveworks.github.io/racket-note/",
   "previousPublishedUrl": "https://tennis-db-racket-note.web.app/",
   "assets": [
@@ -12,7 +12,7 @@
     },
     {
       "name": "diagnostics.html",
-      "sha256": "13087ed3de6ed3400e96f7b7503a35c34f5af3179f560add839487fb388e7882",
+      "sha256": "67531cbe946b964ece828da3c80d4e5253ad805590c925d8455f3be5ed70a844",
       "previousPublishedSha256": "3a2a1f24304ebdfe25758d05d3e22d00f0f2ecd953f3c5dbe3dd1b2881a14b85",
       "previousReleaseSha256": "3a2a1f24304ebdfe25758d05d3e22d00f0f2ecd953f3c5dbe3dd1b2881a14b85"
     },
@@ -30,7 +30,7 @@
     },
     {
       "name": "index.html",
-      "sha256": "cba3ba210aeb97585c8fa822d60e525367aae4027d906509cf0b6a04dc935c74",
+      "sha256": "ca9d987cc3d03b2a2926988e092328239562224a2bab199d3040cc841f68eb7e",
       "previousPublishedSha256": "25d17d94ac4cbf6d5a9cdb6beb5fe6858cc303cd9f8d98a549f8576821a0ee23",
       "previousReleaseSha256": "25d17d94ac4cbf6d5a9cdb6beb5fe6858cc303cd9f8d98a549f8576821a0ee23"
     },
@@ -96,7 +96,7 @@
     },
     {
       "name": "voice-check.html",
-      "sha256": "6cd3244202d9a7a51904bfac0b04e6c21cb23b42ee9bff91be734b6153db71cf",
+      "sha256": "24f0cdd5c3c8a5aa41f8c7f9faa76b41a99e66767463c02abd150145886f668a",
       "previousPublishedSha256": "a7cdca330ecb5a1e77e47187801b51b79b7bf6309a0b8fb9df6b5e70d7c6c70a",
       "previousReleaseSha256": "a2fff77899acc09cf9829c43da4df138ba1f8b00a3ead3ebf4083ca5c5cf21aa"
     },
@@ -114,7 +114,7 @@
     },
     {
       "name": "workspace-app.js",
-      "sha256": "e731b1ca09884448962f4d17f970ce6988d5dfcceeda4bb6ce66c36ba8772148",
+      "sha256": "47b73b47da03f1a2e29d0078535f9ee1b0c18791865b2eee312276f6ed796df7",
       "previousPublishedSha256": "34d6c05e66a498786c3e3a884819e73a1dc0bf0f3135cdaf5f90e97f088c4476",
       "previousReleaseSha256": "a2c5312488e7748bbe8104c13dab666420b49d06d2daf58a52ffa24ccca565df"
     },
