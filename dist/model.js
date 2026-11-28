@@ -4,13 +4,32 @@
   const racketText = ['name','maker','individual','face','pattern','length','gripSize','note','createdAt','updatedAt'];
   const recordText = ['date','kind','state','condition','stringMain','stringCross','tensionUnit','grip','custom','note','createdAt'];
   const recordSetupText = ['baseGrip','overgrip'];
+  const recordOptionalNumbers = ['stringMainGauge','stringCrossGauge'];
   const recordNumbers = ['weight','balance','sw','tw','ra','gripW','gripT','tensionMain','tensionCross'];
-  const kinds = {measured:'実測',catalog:'公称値',estimated:'推定値',lab:'ラボ値',legacy:'種別未記録'};
+  const maxCustomParts = 40;
+  const kinds = {measured:'実測',catalog:'公称値',estimated:'推定値',lab:'ラボ値',legacy:'種別未記録',other:'その他'};
   const states = {unknown:'未確認',bare:'ガットなし',strung:'張り上がり',ready:'張り上がり＋オーバーグリップ',other:'その他'};
   function text(value, key) {
     if (value === undefined || value === null) return '';
     if (typeof value !== 'string' || value.length > 20000) throw Error(key + 'の形式を確認してください。');
     return value;
+  }
+  function number(value, key) {
+    if (value === '' || value === null || value === undefined) return '';
+    if (typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 10000) return value;
+    throw Error(key + 'は0以上の数値で入力してください。');
+  }
+  function customParts(value) {
+    if (!Array.isArray(value) || value.length > maxCustomParts) throw Error('加重の位置と量の形式を確認してください。');
+    return value.map(part => {
+      if (!part || typeof part !== 'object' || typeof part.position !== 'string' || !part.position.trim() || part.position.length > 100 || typeof part.grams !== 'number' || !Number.isFinite(part.grams) || part.grams < 0 || part.grams > 10000) throw Error('加重の位置と量の形式を確認してください。');
+      const item = {position:part.position,grams:part.grams};
+      if (Object.hasOwn(part,'material')) {
+        if (typeof part.material !== 'string' || part.material.length > 100) throw Error('加重の位置と量の形式を確認してください。');
+        item.material = part.material;
+      }
+      return item;
+    });
   }
   function id(value) {
     if (typeof value !== 'string' || !value.trim() || value.length > 200) throw Error('記録IDが不正です。');
@@ -51,23 +70,27 @@
         recordText.forEach(key => {record[key] = text(itemRecord[key],key);});
         // Optional additions must not change old payloads or their revision signatures.
         recordSetupText.forEach(key => {if (Object.hasOwn(itemRecord,key)) record[key] = text(itemRecord[key],key);});
+        recordOptionalNumbers.forEach(key => {if (Object.hasOwn(itemRecord,key)) record[key] = number(itemRecord[key],key);});
+        if (Object.hasOwn(itemRecord,'customMaterial')) record.customMaterial = text(itemRecord.customMaterial,'加重の素材');
+        if (Object.hasOwn(itemRecord,'customParts')) record.customParts = customParts(itemRecord.customParts);
+        if (Object.hasOwn(itemRecord,'gripSizeCustom')) record.gripSizeCustom = text(itemRecord.gripSizeCustom,'グリップサイズのカスタム');
         if (Object.hasOwn(itemRecord,'inputTranscript')) record.inputTranscript = text(itemRecord.inputTranscript,'入力原文');
         if (itemRecord.source !== undefined) record.source = source(itemRecord.source);
         if (itemRecord.archive !== undefined) record.archive = source(itemRecord.archive);
         if (!date(record.date) && !(record.date === '' && record.source)) throw Error('測定日の形式を確認してください。');
         if (!Object.hasOwn(kinds,record.kind) || !Object.hasOwn(states,record.state)) throw Error('記録種別・状態の形式を確認してください。');
         if (!['lb','kg'].includes(record.tensionUnit)) throw Error('テンションの単位を確認してください。');
-        recordNumbers.forEach(key => {
-          const value = itemRecord[key];
-          if (value === '' || value === null || value === undefined) record[key] = '';
-          else if (typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 10000) record[key] = value;
-          else throw Error(key + 'は0以上の数値で入力してください。');
-        });
+        recordNumbers.forEach(key => {record[key] = number(itemRecord[key],key);});
         return record;
       });
       return racket;
     });
     return {app:'racket-note',version:1,rackets};
+  }
+  function recoilWeight(record) {
+    const {sw,weight,balance} = record || {};
+    if ([sw,weight,balance].some(value => typeof value !== 'number' || !Number.isFinite(value))) return '';
+    return sw - (weight / 1000) * (balance / 10 - 10) ** 2;
   }
   function empty() {return {app:'racket-note',version:1,rackets:[]};}
   function historySequence(record) {try{return Number(JSON.parse(record.archive?.raw || '{}').sequence)||0;}catch{return 0;}}
@@ -88,13 +111,17 @@
     }
     return {data:validate(result),addedRackets,addedRecords,skippedRecords};
   }
+  function partsText(parts) {
+    if (!Array.isArray(parts)) return '';
+    return parts.length ? parts.map(part => part.position + ':' + part.grams + 'g' + (part.material ? '(' + part.material + ')' : '')).join(' / ') : 'なし';
+  }
   function csv(state) {
-    const columns = ['ラケット名','メーカー','個体名','フェイス','パターン','長さ','グリップサイズ','日付','種別','状態','今回の変更・条件名','重量(g)','バランス(mm)','SW(kg·cm²)','TW(kg·cm²)','RA','グリップ幅(mm)','グリップ厚(mm)','縦糸','横糸','テンション縦','テンション横','テンション単位','グリップ（旧記述・補足）','鉛・加重（位置と量）','測定メモ','ラケットメモ','元グリップ','オーバーグリップ'];
+    const columns = ['ラケット名','メーカー','個体名','フェイス','パターン','長さ','グリップサイズ','日付','種別','状態','今回の変更・条件名','重量(g)','バランス(mm)','SW(kg·cm²)','TW(kg·cm²)','RA','グリップ幅(mm)','グリップ厚(mm)','縦糸','横糸','テンション縦','テンション横','テンション単位','グリップ（旧記述・補足）','カスタム（記録の原文）','グリップサイズのカスタム','測定メモ','ラケットメモ','元グリップ','オーバーグリップ','縦糸太さ(mm)','横糸太さ(mm)','加重の素材','加重（位置別）'];
     const rows = [columns];
     validate(state).rackets.forEach(racket => {
       const base = [racket.name,racket.maker,racket.individual,racket.face,racket.pattern,racket.length,racket.gripSize];
-      if (!racket.records.length) rows.push([...base,...Array(19).fill(''),racket.note,'','']);
-      sorted(racket.records).forEach(record => rows.push([...base,record.date,kinds[record.kind],states[record.state],record.condition,...recordNumbers.slice(0,7).map(key => record[key]),record.stringMain,record.stringCross,record.tensionMain,record.tensionCross,record.tensionUnit,record.grip,record.custom,record.note,racket.note,record.baseGrip,record.overgrip]));
+      if (!racket.records.length) rows.push([...base,...Array(20).fill(''),racket.note,'','','','','','']);
+      sorted(racket.records).forEach(record => rows.push([...base,record.date,kinds[record.kind],states[record.state],record.condition,...recordNumbers.slice(0,7).map(key => record[key]),record.stringMain,record.stringCross,record.tensionMain,record.tensionCross,record.tensionUnit,record.grip,record.custom,record.gripSizeCustom,record.note,racket.note,record.baseGrip,record.overgrip,record.stringMainGauge,record.stringCrossGauge,record.customMaterial,partsText(record.customParts)]));
     });
     const cell = value => {
       let safe = String(value ?? '');
@@ -103,7 +130,7 @@
     };
     return '\uFEFF' + rows.map(row => row.map(cell).join(',')).join('\r\n');
   }
-  const api = {validate,empty,sorted,merge,csv,kinds,states,recordNumbers};
+  const api = {validate,recoilWeight,empty,sorted,merge,csv,kinds,states,recordNumbers};
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.RacketLedgerModel = Object.freeze(api);
 })(typeof globalThis !== 'undefined' ? globalThis : this);

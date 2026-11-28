@@ -15,6 +15,10 @@
   const glyph = '<svg viewBox="0 0 36 36" fill="none" aria-hidden="true"><ellipse cx="22" cy="12" rx="8" ry="10" transform="rotate(35 22 12)" stroke="currentColor" stroke-width="2"/><path d="M16 20L5 34M20 4L29 15M16 9L26 21M16 17L26 4M19 21L30 9" stroke="currentColor" stroke-width="1.4"/></svg>';
   const label = (r,k) => [r.name,r.individual,k?.date,k?.condition].filter(Boolean).join(' ');
   const chosen = (items,id) => items.some(i=>i.recordId === id);
+  const text = v => typeof v === 'string' && v.trim() ? v : '';
+  function overgripShort(k) {const v = text(k.overgrip); if (!v) return k.state === 'ready' ? 'あり' : '—'; return /^なし/.test(v.trim()) ? 'なし' : 'あり';}
+  const gramText = g => Number.isInteger(Math.round(g*1000)/1000*10) ? (Math.round(g*1000)/1000).toFixed(1) : String(Math.round(g*1000)/1000);
+  const gaugeText = g => {const t = String(g); return (t.split('.')[1]||'').length >= 2 ? t : Number(g).toFixed(2);};
   const check = (r,k,items) => k ? `<label class="record-check"><input type="checkbox" data-compare="${esc(k.id)}" data-racket="${esc(r.id)}" aria-label="${esc(label(r,k))}を比較" ${chosen(items,k.id)?'checked':''}><span>比較</span></label>` : '<span class="muted">—</span>';
   const button = (text,action,r,k,classes='') => `<button class="button ${classes}" data-action="${action}" ${r?`data-id="${esc(r.id)}"`:''} ${k?`data-record="${esc(k.id)}"`:''}>${text}</button>`;
   function matchingRows(data,filters={}) {
@@ -55,11 +59,11 @@
   }
   function metricCells(record) {return metrics.map(([key,name,unit])=>`<div><dt>${name}<small>${unit}</small></dt><dd>${fmt(record?.[key])}</dd></div>`).join('');}
   function setupSummary(k) {
-    return [['元',k.baseGrip],['OG',k.overgrip],['加重',k.custom]].filter(([,v])=>known(v)).map(([n,v])=>n+'：'+v).join(' / ');
+    return [['元',k.baseGrip],['OG',k.overgrip],['カスタム',k.custom]].filter(([,v])=>known(v)).map(([n,v])=>n+'：'+v).join(' / ');
   }
   function setupSnapshot(k) {
     const strings=k.state==='bare'?'なし':k.stringMain?[k.stringMain,k.stringCross&&k.stringCross!==k.stringMain?k.stringCross:'',known(k.tensionMain)?k.tensionMain+(known(k.tensionCross)?'/'+k.tensionCross:'')+' '+k.tensionUnit:''].filter(Boolean).join(' / '):shortState(k);
-    const values=[['ストリング',strings],['元グリップ',k.baseGrip],['オーバーグリップ',k.overgrip||(k.state==='ready'?'あり（品名未記録）':'')],['鉛・加重',k.custom],...(k.grip?[['グリップの旧記述',k.grip]]:[])];
+    const values=[['ストリング',strings],['元グリップ',k.baseGrip],['オーバーグリップ',k.overgrip||(k.state==='ready'?'あり（品名未記録）':'')],['カスタム（記録の原文）',k.custom],...(k.grip?[['グリップの旧記述',k.grip]]:[])];
     return '<dl class="setup-snapshot" aria-label="測定時のセッティング">'+values.map(([n,v])=>'<div><dt>'+n+'</dt><dd>'+ (known(v)?esc(v):'<span class="muted">未記録</span>')+'</dd></div>').join('')+'</dl>';
   }
   function sourcePanel(racket) {
@@ -96,12 +100,12 @@
     }).join('')}</tbody></table></div></section><section class="panel" style="padding:20px;margin-top:20px" aria-label="元資料の施工メモ"><h3>元資料の施工メモ</h3>${(archive.notes||[]).map(note=>`<p style="white-space:pre-wrap">${esc(note)}</p>`).join('')}${archive.excelNote?`<p>${esc(archive.excelNote)}</p>`:''}<p class="view-note">採用・却下・現行の記述は保存当時の原文です。未記録のSW・TWや施工日を補っていません。</p></section>`;
   }
   function recordCard(r,k,selected) {
-    const terms=[['重量',known(k.weight)?k.weight+' g':''],['縦糸',k.stringMain],['横糸',k.stringCross],['縦テンション',known(k.tensionMain)?k.tensionMain+' '+k.tensionUnit:''],['横テンション',known(k.tensionCross)?k.tensionCross+' '+k.tensionUnit:''],['グリップ',k.grip],['グリップ幅 / 厚',known(k.gripW)||known(k.gripT)?`${known(k.gripW)?k.gripW:'—'} / ${known(k.gripT)?k.gripT:'—'} mm`:''],['RA',k.ra],['加重・調整',k.custom],['メモ',k.note]];
+    const terms=[['重量',known(k.weight)?k.weight+' g':''],['縦糸',k.stringMain],['横糸',k.stringCross],['縦テンション',known(k.tensionMain)?k.tensionMain+' '+k.tensionUnit:''],['横テンション',known(k.tensionCross)?k.tensionCross+' '+k.tensionUnit:''],['グリップ',k.grip],['グリップ幅 / 厚',known(k.gripW)||known(k.gripT)?`${known(k.gripW)?k.gripW:'—'} / ${known(k.gripT)?k.gripT:'—'} mm`:''],['RA',k.ra],['カスタム（記録の原文）',k.custom],['メモ',k.note]];
     return `<article class="panel history-entry"><div class="history-heading"><div class="record-title"><h3>${date(k.date)}</h3>${badge(k)}<span class="state-chip">${esc(shortState(k))}</span></div><div class="history-controls">${check(r,k,selected)}${k.source?`<span class="muted">${sourceName(k)}から引継ぎ</span>`:button('編集','edit-record',r,k,'subtle')}</div></div>${k.condition?`<p class="condition-description">${esc(k.condition)}</p>`:''}<dl class="metric-grid">${metricCells(k)}</dl>${setupSnapshot(k)}<div class="record-bottom"><details><summary>ストリング・調整・メモ</summary><dl class="condition-details">${terms.map(([name,v])=>`<div><dt>${name}</dt><dd>${fmt(v)}</dd></div>`).join('')}</dl></details>${button('この条件で記録','reuse-record',r,k,'compact')}</div>${k.source?'<p class="view-note">引き継いだ記録は原文を保持します。測り直した数値は「この条件で記録」から追加できます。</p>':''}</article>`;
   }
   const compareFields=[
     ['kind','記録種別','','context'],['sourceName','出典','','context'],['state','測定状態','','context'],['condition','今回の変更・条件名','','context'],
-    ...metrics.map(([key,name,unit])=>[key,name,unit,'number']),['baseGrip','元グリップ','','context'],['overgrip','オーバーグリップ','','context'],['custom','鉛・加重（位置と量）','','context'],['weight','重量','g','number'],['ra','RA','','number'],['face','フェイス','in²','racket'],['pattern','パターン','','racket'],['length','長さ','','racket'],['gripSize','グリップサイズ','','racket'],
+    ...metrics.map(([key,name,unit])=>[key,name,unit,'number']),['baseGrip','元グリップ','','context'],['overgrip','オーバーグリップ','','context'],['custom','カスタム（記録の原文）','','context'],['weight','重量','g','number'],['ra','RA','','number'],['face','フェイス','in²','racket'],['pattern','パターン','','racket'],['length','長さ','','racket'],['gripSize','グリップサイズ','','racket'],
     ['stringMain','縦糸'],['stringCross','横糸'],['tensionMain','縦テンション','','tension'],['tensionCross','横テンション','','tension'],['grip','グリップ'],['gripW','グリップ幅','mm','number'],['gripT','グリップ厚','mm','number'],['note','測定メモ'],['flex','振動数','Hz','sourceNumber'],['dra','DRA','','sourceNumber'],['spinw','スピンウェイト','kg·cm²','sourceNumber'],['recoil','反動重量','kg·cm²','sourceNumber'],['profile','ビーム形状','','sourceText'],['obj','ラボ6軸（パワー/スピン/コントロール/操作性/安定性/快適性）','','sourceText'],
     ['archiveCondition','元資料の施工名','','archive'],['archiveExcel','Excelの元表記','','archive']
   ];
@@ -120,33 +124,55 @@
     const d=Math.round((value-base)*1000)/1000;
     return d===0?'差なし':(d>0?'+':'−')+Math.abs(d).toLocaleString('ja-JP',{maximumFractionDigits:3});
   }
-  const comparisonCoreFields=[['condition','測定条件','','condition'],...metrics.map(([key,name,unit])=>[key,name,unit,'number']),['weight','重量','g','number'],['gripW','グリップ幅','mm','number'],['gripT','グリップ厚','mm','number']];
-  function comparisonCondition(item) {
-    const k=item.record,title=k.condition||archiveInfo(k).condition||'条件名未記録';
-    const setup=[k.baseGrip&&!title.includes(k.baseGrip)?'元：'+k.baseGrip:'',k.overgrip&&!title.includes(k.overgrip)?'OG：'+k.overgrip:'',k.custom&&k.custom!==title&&k.custom!==archiveInfo(k).condition?'加重：'+k.custom:'',k.grip?'補足：'+k.grip:''].filter(Boolean);
-    const strings=[k.stringMain?'縦：'+k.stringMain:'',k.stringCross?'横：'+k.stringCross:'',known(k.tensionMain)?k.tensionMain+(known(k.tensionCross)?'/'+k.tensionCross:'')+' '+k.tensionUnit:''].filter(Boolean);
-    return `<strong>${esc(title)}</strong>${setup.length?`<small>${esc(setup.join(' / '))}</small>`:''}${strings.length?`<small>${esc(strings.join(' / '))}</small>`:''}`;
-  }
   function comparisonColumnHeader(items,sameRacket,interactive=true) {
     return `<thead><tr><th scope="col">項目</th>${items.map(({racket:r,record:k},i)=>`<th scope="col"><div class="comparison-col-heading">${sameRacket?`<strong>記録 ${i+1}</strong>`:`<a class="racket-name" href="${route(r.id)}">${esc(r.name)}${r.individual?`<small>${esc(r.individual)}</small>`:''}</a>`}${interactive?`<button class="remove-record" data-remove="${esc(k.id)}" aria-label="${esc(label(r,k))}を比較から外す">×</button>`:''}</div><small class="comparison-record-meta">${date(k.date)} · ${badge(k)}<span>${esc(shortState(k))} · ${sourceName(k)}</span></small>${interactive?`<div class="comparison-baseline">${i===0?'<span class="baseline-badge">比較の基準</span>':`<button class="text-button" data-baseline="${esc(k.id)}" aria-label="${esc(label(r,k))}を基準にする">基準にする</button>`}</div>`:''}</th>`).join('')}</tr></thead>`;
   }
   function comparisonRows(fields,items,base) {
     return fields.map(([key,name,unit,type])=>`<tr data-metric="${esc(key)}" class="${type==='number'||type==='sourceNumber'?'numeric-row':''}"><th scope="row">${name}${unit?`<small>${unit}</small>`:''}</th>${items.map((item,i)=>{
-      if(type==='condition')return `<td class="comparison-condition">${comparisonCondition(item)}</td>`;
       const v=rawValue(item,key,type),d=(type==='number'||type==='sourceNumber')&&i?difference(v,rawValue(base,key,type)):'';
       return `<td>${fmt(v)}${d?`<small class="delta">${d==='差なし'?d:'基準より '+d+(unit?' '+unit:'')}</small>`:''}</td>`;
     }).join('')}</tr>`).join('');
+  }
+  const hasNumber = v => typeof v === 'number' && Number.isFinite(v);
+  const recoil = k => {const v = M.recoilWeight(k); return hasNumber(v) ? Math.round(v*10)/10 : null;};
+  const cmpDelta = (v,b) => {const d = difference(v,b); return !d ? '' : d === '差なし' ? '<span class="cmp-d cmp-zero">差なし</span>' : `<span class="cmp-d">${d}</span>`;};
+  function loadText(k) {
+    if (!Object.hasOwn(k,'customParts') || !Array.isArray(k.customParts)) return '未記録';
+    if (!k.customParts.length) return 'なし';
+    const own = k.customParts.map(p => text(p.material)), any = own.some(Boolean), same = own.every(m => m && m === own[0]);
+    if (any && !same) return k.customParts.map(p => `${p.position}${text(p.material) ? ' ' + p.material : ''} ${gramText(p.grams)} g`).join('、');
+    const groups = [];
+    for (const part of k.customParts) {const g = groups.find(x => x.grams === part.grams); if (g) g.positions.push(part.position); else groups.push({grams:part.grams,positions:[part.position]});}
+    return (any ? own[0] + ' · ' : '') + groups.map(g => g.positions.length > 1 ? `${g.positions.join('・')} 各${gramText(g.grams)} g` : `${g.positions[0]} ${gramText(g.grams)} g`).join('、');
+  }
+  function gripText(k) {
+    const base = text(k.baseGrip), og = overgripShort(k);
+    if (base) return og === '—' ? base + '／未記録' : base + '／OG' + og;
+    return og === '—' ? '未記録' : '未記録／OG' + og;
+  }
+  function stringCell(k,side) {
+    if (k.state === 'bare') return 'なし';
+    const name = text(k[side==='main'?'stringMain':'stringCross']), gauge = k[side==='main'?'stringMainGauge':'stringCrossGauge'], tension = k[side==='main'?'tensionMain':'tensionCross'];
+    const detail = [known(gauge) ? gaugeText(gauge) + ' mm' : '', known(tension) ? tension + ' ' + (k.tensionUnit || '') : ''].filter(Boolean).map(t => t.trim()).join(' · ');
+    if (!name && !detail) return '未記録';
+    return `<div class="cmp-string">${name ? esc(name) : ''}${detail ? `<span>${esc(detail)}</span>` : ''}</div>`;
   }
   function comparison(data,selected,baseline,onlyDifferent) {
     let items=selected.map(i=>{const racket=data.rackets.find(r=>r.id===i.racketId);return{racket,record:racket?.records.find(r=>r.id===i.recordId)};}).filter(i=>i.record);
     const base=items.find(i=>i.record.id===baseline)||items[0];
     if(base)items=[base,...items.filter(i=>i!==base)];
-    const intro=header(`スペック比較 <span class="count-badge">${items.length} 件</span>`,'',button('＋ 記録を選ぶ','choose-records',null,null,'primary'),'比較');
-    if(!items.length)return intro+`<div class="panel empty-state"><div class="empty-symbol">⇄</div><h2>比較したい記録を選ぶ</h2><p>別のラケットも、同じ個体の過去の測定も。<br>最大4件を並べて比較できます。</p>${button('記録を選ぶ','choose-records',null,null,'primary')}</div>`;
-    const sameRacket=items.every(item=>item.racket.id===items[0].racket.id),coreKeys=new Set(comparisonCoreFields.map(([key])=>key));
+    if(!items.length)return header('測定履歴の比較','',button('＋ 記録を選ぶ','choose-records',null,null,'primary'),'比較')+`<div class="panel empty-state"><div class="empty-symbol">⇄</div><h2>比較したい記録を選ぶ</h2><p>別のラケットも、同じ個体の過去の測定も。<br>最大4件を並べて比較できます。</p>${button('記録を選ぶ','choose-records',null,null,'primary')}</div>`;
+    const sameRacket=items.every(item=>item.racket.id===items[0].racket.id),coreKeys=new Set(['sw','balance','tw','weight']),full=items.length>=4;
     const supplement=compareFields.filter(([key,,,type])=>!coreKeys.has(key)&&((!type?.startsWith('source')&&type!=='archive')||items.some(i=>known(rawValue(i,key,type))))&&(type==='context'||!onlyDifferent||new Set(items.map(i=>String(rawValue(i,key,type)??''))).size>1));
-    const subject=sameRacket?`<a href="${route(items[0].racket.id)}">${esc(items[0].racket.name)}${items[0].racket.individual?' · '+esc(items[0].racket.individual):''}</a>`:`<span>${items.length}件のラケット・測定記録</span>`;
-    return `<div class="comparison-view">${intro}<div class="comparison-subject">${subject}<span>左が基準 · 差分は各数値の下</span></div><section class="panel comparison-primary-panel"><div class="comparison-scroll comparison-primary-scroll" role="region" aria-label="主要スペック比較表" tabindex="0"><table class="comparison-table comparison-primary" style="--columns:${items.length}">${comparisonColumnHeader(items,sameRacket)}<tbody>${comparisonRows(comparisonCoreFields,items,base)}</tbody></table></div></section><details class="panel comparison-supplement"><summary>弦・グリップ条件・原資料</summary><div class="compare-tools"><label class="toggle-label"><input type="checkbox" id="only-different" ${onlyDifferent?'checked':''}>補足は違う項目だけ表示</label><span>主要7行は常に表示します。</span></div><div class="comparison-scroll" role="region" aria-label="補足と原資料の比較表" tabindex="0"><table class="comparison-table" style="--columns:${items.length}">${comparisonColumnHeader(items,sameRacket,false)}<tbody>${comparisonRows(supplement,items,base)}</tbody></table></div></details><p class="view-note">空欄は未記録。実測・推定・ラボ値と測定状態は、各記録の見出しに表示します。</p></div>`;
+    const cls=i=>i===0?' class="cmp-base"':'',plus='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>',cross='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>';
+    const head=`<div class="cmp-head"><div><h1>測定履歴の比較</h1><p>${items.length}件を選択中 (最大4件) · ラケット・個体を問わず並べる · <span class="cmp-blue">青字は基準との差</span></p></div><div class="cmp-head-actions">${full?`<button type="button" class="cmp-btn" data-action="choose-records" disabled aria-disabled="true" title="最大4件">${plus}列を追加 · 上限</button>`:`<button type="button" class="cmp-btn" data-action="choose-records">${plus}列を追加</button>`}<a class="cmp-btn" href="#/">一覧へ戻る</a></div></div>`;
+    const cols=`<colgroup><col style="width:16%">${items.map(()=>`<col style="width:${84/items.length}%">`).join('')}</colgroup>`;
+    const thead=`<thead><tr><th scope="col" class="cmp-item-head">項目</th>${items.map(({racket:r,record:k},i)=>{const cond=k.condition||archiveInfo(k).condition||'',sub=[r.individual,cond].filter(Boolean).join(' · ');return `<th scope="col"${cls(i)}><a class="cmp-name" href="${route(r.id)}">${esc(r.name)}</a>${sub?`<div class="cmp-sub">${esc(sub)}</div>`:''}${k.date?`<div class="cmp-date">${date(k.date)}</div>`:''}<div class="cmp-kind">${badge(k)}</div><div class="cmp-actions">${i===0?'<span class="cmp-basemark">基準</span>':`<button type="button" class="cmp-set" data-baseline="${esc(k.id)}" aria-label="${esc(label(r,k))}を基準にする">基準にする</button>`}<button type="button" class="cmp-x" data-remove="${esc(k.id)}" aria-label="${esc(label(r,k))}を外す">${cross}</button></div></th>`;}).join('')}</tr></thead>`;
+    const number=(key,name,unit,get,empty)=>`<tr data-metric="${key}"><th scope="row" class="cmp-row-head">${name}${unit?`<span class="cmp-unit">${unit}</span>`:''}</th>${items.map((item,i)=>{const v=get(item.record);const missing=empty?empty(item.record):'未測定';return v===null||!known(v)?`<td${i===0?' class="cmp-base cmp-na"':' class="cmp-na"'}>${esc(missing)}</td>`:`<td class="cmp-n${i===0?' cmp-base':''}">${typeof v==='number'&&key==='rw'?v.toFixed(1):esc(v)}${i?cmpDelta(v,get(base.record)):''}</td>`;}).join('')}</tr>`;
+    const plain=(key,name,render,tall)=>`<tr data-metric="${key}"><th scope="row" class="cmp-row-head">${name}</th>${items.map((item,i)=>`<td class="${i===0?'cmp-base':''}${tall?' cmp-tall':''}">${render(item.record)}</td>`).join('')}</tr>`;
+    const waiting=k=>[['SW',k.sw],['BP',k.balance],['重量',k.weight]].filter(([,v])=>!hasNumber(v)).map(([n])=>n).join('・')+' 待ち';
+    const body=number('sw','SW','kg·cm²',k=>k.sw)+number('balance','BP','mm',k=>k.balance)+number('tw','TW','kg·cm²',k=>k.tw)+number('weight','重量','g',k=>k.weight)+number('rw','RW (計算値)','kg·cm²',recoil,waiting)+plain('load','加重 (位置・量)',k=>esc(loadText(k)))+plain('grip','元グリップ／OG',k=>esc(gripText(k)))+plain('stringMain','縦糸',k=>stringCell(k,'main'),true)+plain('stringCross','横糸',k=>stringCell(k,'cross'),true);
+    return `<div class="comparison-view">${head}<section class="cmp-card"><div class="cmp-scroll" role="region" aria-label="比較表" tabindex="0"><table class="cmp-table" style="--columns:${items.length}">${cols}${thead}<tbody>${body}</tbody></table></div></section><details class="panel comparison-supplement"><summary>弦・グリップ条件・原資料</summary><div class="compare-tools"><label class="toggle-label"><input type="checkbox" id="only-different" ${onlyDifferent?'checked':''}>補足は違う項目だけ表示</label><span>上の表の項目は常に表示します。</span></div><div class="comparison-scroll" role="region" aria-label="補足と原資料の比較表" tabindex="0"><table class="comparison-table" style="--columns:${items.length}">${comparisonColumnHeader(items,sameRacket,false)}<tbody>${comparisonRows(supplement,items,base)}</tbody></table></div></details><p class="view-note">空欄は未記録。実測・推定・ラボ値の区別は、各列の見出しの印で表示します。</p></div>`;
   }
   function picker(data,selected,query='') {
     const q=query.trim().toLocaleLowerCase();
@@ -160,6 +186,6 @@
   function recordStart(data) {
     return `<section class="record-start"><p>測る一本を選んでください。名前の入力は不要です。</p><label class="field"><span>ラケットを検索</span><input id="measurement-racket-search" type="search" placeholder="名前・個体名で検索"></label><div id="measurement-racket-choices">${racketChoices(data)}</div><div class="record-start-footer">${button('＋ 新しいラケットを登録','new-racket')}<span>新規登録は名前だけでも大丈夫です。</span></div></section>`;
   }
-  const api={esc,fmt,known,date,glyph,header,overview,results,matchingRows,detail,comparison,picker,difference,racketChoices,recordStart,historyView,sourcePanel};
+  const api={esc,fmt,known,date,glyph,header,overview,results,matchingRows,detail,comparison,picker,difference,overgripShort,gramText,gaugeText,racketChoices,recordStart,historyView,sourcePanel};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.RacketWorkspaceUI=Object.freeze(api);
 })(typeof globalThis!=='undefined'?globalThis:this);

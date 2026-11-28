@@ -32,7 +32,6 @@
     if(base&&base[1].trim())fields.baseGrip=base[1].trim();
     const custom=stripped.match(/(?:鉛の配置|加重の配置|鉛|加重)(?:は|全体は|全配置は)\s*(.+?)(?:[、。\n]|$)/);
     if(custom)fields.custom=custom[1].trim();
-    else if(/鉛|加重|シム/.test(stripped))warnings.push('鉛・シムの変更は「加重・施工」の全配置を確認してください');
     if(hits.length===0&&!Object.keys(fields).length)warnings.push('項目を判別できません。原文を見ながら入力してください');
     const condition=stripped.replace(/[、。\s]+/g,' ').trim();
     if(condition)fields.condition=condition;
@@ -43,15 +42,42 @@
     if(!input||!mic)return ()=>{};
     const Recognition=root.SpeechRecognition||root.webkitSpeechRecognition;let recognition=null,alive=true,listening=false;
     const tell=t=>{if(alive&&status)status.textContent=t;};
-    function applyText(){
+    let busy=false;
+    const reasons={offline:'通信できません',quota:'回数の上限です。1分ほど待ってください',timeout:'時間切れです',error:'その他のエラー'};
+    function finish(){const original=form.elements.namedItem('inputTranscript');if(original)original.value=[original.value,input.value].filter(Boolean).join('\n').slice(-20000);form.dispatchEvent(new Event('change',{bubbles:true}));onChange();}
+    function applyFixed(prefix){
+      const parsed=parse(input.value);let count=0;
+      for(const [key,value] of Object.entries(parsed.fields)){const field=form.elements.namedItem(key);if(!field)continue;field.value=value;field.dataset.voiceChanged='true';count++;}
+      finish();
+      tell(prefix+(count?`${count}項目を反映。色付きの欄を確認して保存してください。`:'')+parsed.warnings.join('。'));
+    }
+    function applyAI(result){
+      let count=0;
+      for(const [key,value] of Object.entries(result.fields||{})){const field=form.elements.namedItem(key);if(!field)continue;field.value=value;field.dataset.voiceChanged='true';count++;}
+      const parts=Array.isArray(result.parts)?result.parts:[];let added=0,skipped=0,unsupported=false;
+      if(parts.length){const detail={parts,added:undefined,skipped:0};form.dispatchEvent(new CustomEvent('racket-add-parts',{bubbles:true,detail}));if(detail.added===undefined)unsupported=true;else{added=detail.added;skipped=detail.skipped||0;}}
+      finish();
+      const what=count&&added?`${count}項目と加重に反映`:added?'加重に反映':count?`${count}項目に反映`:'';
+      const notes=[];
+      if(skipped)notes.push(`同じ位置の加重 ${skipped}件は既にあるため足していません`);
+      if(unsupported)notes.push('この画面では加重の行を足せません');
+      if(result.unknown)notes.push('読み取れなかった言葉：'+result.unknown);
+      tell((what?what+'。色付きの欄を確認して保存してください。':'反映できる項目がありませんでした。')+notes.join('。'));
+    }
+    async function applyText(){
       if(!input.value.trim())return tell('話した内容か、まとめて入力した文章を入れてください。');
       const name=form.querySelector('[name=name]');
       if(name){name.value=input.value.trim();name.dataset.voiceChanged='true';onChange();tell('ラケット名に反映しました。名前を確認して登録してください。');return;}
-      const parsed=parse(input.value);let count=0;
-      for(const [key,value] of Object.entries(parsed.fields)){const field=form.elements.namedItem(key);if(!field)continue;field.value=value;field.dataset.voiceChanged='true';count++;}
-      const original=form.elements.namedItem('inputTranscript');if(original)original.value=[original.value,input.value].filter(Boolean).join('\n').slice(-20000);
-      form.dispatchEvent(new Event('change',{bubbles:true}));onChange();
-      tell((count?`${count}項目を反映。色付きの欄を確認して保存してください。`:'')+parsed.warnings.join('。'));
+      const ai=root.RacketVoiceAI;
+      if(!ai||typeof ai.parse!=='function')return applyFixed('');
+      if(busy)return;
+      busy=true;apply.disabled=true;mic.disabled=true;tell('読み取り中…');
+      let result=null,reason='';
+      try{result=await ai.parse(input.value);}catch(error){reason=reasons[error&&error.code]?error.code:'error';}
+      busy=false;
+      if(!alive)return;
+      apply.disabled=false;mic.disabled=false;
+      if(result)applyAI(result);else applyFixed(`AI で読み取れなかったため、決まった語だけを反映しました（${reasons[reason]}）。`);
     }
     function stop(){if(recognition){const old=recognition;recognition=null;old.abort();}listening=false;mic.textContent='音声で入力';mic.setAttribute('aria-pressed','false');}
     apply.addEventListener('click',applyText);
@@ -69,6 +95,6 @@
     if(!Recognition)tell('このブラウザーでは、下の欄に端末のキーボード音声入力を使えます。');
     return ()=>{alive=false;stop();};
   }
-  function controls(nameOnly=false,value=''){const safe=String(value).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));return `<div class="capture-voice"><button class="button" type="button" data-voice-mic aria-pressed="false">音声で入力</button><label><span class="sr-only">${nameOnly?'ラケット名を音声・文章で入力':'測定と条件を音声・文章で入力'}</span><input data-voice-text name="voiceDraft" value="${safe}" type="text" maxlength="10000" placeholder="${nameOnly?'ラケット名を話す／入力':'例：OG追加、SW322、BP320ミリ、TW14.2、重量335'}"></label><button class="button" type="button" data-voice-apply>欄に反映</button><p data-voice-status role="status">話した内容を確認してから保存できます。音声認識はブラウザーのサービスを使います。</p></div>`;}
+  function controls(nameOnly=false,value=''){const safe=String(value).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));return `<div class="capture-voice"><button class="button" type="button" data-voice-mic aria-pressed="false">音声で入力</button><label><span class="sr-only">${nameOnly?'ラケット名を音声・文章で入力':'測定と条件を音声・文章で入力'}</span><input data-voice-text name="voiceDraft" value="${safe}" type="text" maxlength="10000" placeholder="${nameOnly?'ラケット名を話す／入力':'例：スイング310、バランス316、ツイスト12.3、重量308'}"></label><button class="button" type="button" data-voice-apply>欄に反映</button><p data-voice-status role="status">${nameOnly?'話した内容を確認してから保存できます。音声認識はブラウザーのサービスを使います。':'決まった言い方はなし · 聞き取った内容は下の欄に入り、違えば触って直す'}</p>${nameOnly?'':'<p class="capture-voice-privacy">話した文は、読み取りのために Google の AI に送られます</p>'}</div>`;}
   const api={parse,attach,controls};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.RacketVoiceInput=Object.freeze(api);
 })(typeof globalThis!=='undefined'?globalThis:this);

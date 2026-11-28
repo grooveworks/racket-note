@@ -11,7 +11,7 @@ test('弦なしは弦条件を消し、OGの取り外し・元グリップ交換
  const p=V.parse('ガットなし、OG外した、元グリップをフェアウェイレザーに交換、SW300');assert.equal(p.fields.state,'bare');assert.equal(p.fields.tensionMain,'');assert.equal(p.fields.overgrip,'なし');assert.equal(p.fields.baseGrip,'フェアウェイレザー');
 });
 test('加重の追加から全配置を捏造せず、重複する測定値を警告する',()=>{
- const p=V.parse('3時9時に各1g追加、鉛追加、SW329、訂正SW328');assert.equal(p.fields.sw,328);assert.equal(p.fields.custom,undefined);assert.equal(p.warnings.length,2);assert.match(p.transcript,/3時9時/);
+ const p=V.parse('3時9時に各1g追加、鉛追加、SW329、訂正SW328');assert.equal(p.fields.sw,328);assert.equal(p.fields.custom,undefined);assert.equal(p.warnings.length,1);assert.match(p.transcript,/3時9時/);
 });
 test('単位なしのBPを勝手に10倍しない、不明文・負値は数値化しない',()=>{
  assert.equal(V.parse('BP32').fields.balance,32);assert.equal(V.parse('SWマイナス').fields.sw,undefined);assert.equal(V.parse('SW-3').fields.sw,undefined);assert.ok(V.parse('聞き取り不明').warnings.length);
@@ -27,5 +27,5 @@ test('個体未照合の報告は明示選択した一本へ別記録として�
  assert.throws(()=>H.linkedReport(report,'',base()));const old=base(),next=H.linkedReport(report,'r2',old);assert.deepEqual(next.rackets[0],old.rackets[0]);assert.equal(next.rackets[1].records[0].date,'');assert.equal(next.rackets[1].records[0].balance,'');assert.equal(next.rackets[1].records[0].source.system,'chatgpt');assert.throws(()=>H.linkedReport(report,'r1',next));assert.equal(P.plan(old,next).length,1);
 });
 test('履歴全行を表示し、条件/6列/原文を保持し、入力では旧数値を複写しない',()=>{
- const old=base(),r=old.rackets[0],html=H.group(r,[],''),form=H.inlineForm(r,r.records[0]);assert.equal((html.match(/data-hl-record=/g)||[]).length,1);for(const key of ['SW','BP','TW','重量','幅','厚'])assert.ok(html.includes(key));assert.match(form,/name="sw"[^>]*value=""/);assert.match(form,/name="baseGrip"[^>]*value="革"/);assert.match(form,/name="weight"[^>]*value=""/);
+ const old=base(),r=old.rackets[0],html=H.group(r,[],''),form=H.inlineForm(r,r.records[0]);assert.equal((html.match(/data-hl-record=/g)||[]).length,1);for(const key of ['SW','BP','TW','重量'])assert.ok(html.includes(key));const detail=H.detailFrame(r,r.records[0]);assert.ok(detail.includes('グリップ幅 (mm)')&&detail.includes('33.5')&&detail.includes('グリップ厚 (mm)')&&detail.includes('29.7'));assert.match(form,/name="sw"[^>]*value=""/);assert.match(form,/name="baseGrip"[^>]*value="革"/);assert.match(form,/name="weight"[^>]*value=""/);
 });

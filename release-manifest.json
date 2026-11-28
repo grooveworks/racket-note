@@ -1,6 +1,6 @@
 {
   "app": "racket-note",
-  "version": "2026-11-25.github-pages.2",
+  "version": "2026-11-28.github-pages.1",
   "publicUrl": "https://grooveworks.github.io/racket-note/",
   "previousPublishedUrl": "https://tennis-db-racket-note.web.app/",
   "assets": [
@@ -12,25 +12,25 @@
     },
     {
       "name": "diagnostics.html",
-      "sha256": "098f4e37369d28ad10a657d314057cf256cfa0ed39895ababf882b511fc67b10",
+      "sha256": "13087ed3de6ed3400e96f7b7503a35c34f5af3179f560add839487fb388e7882",
       "previousPublishedSha256": "3a2a1f24304ebdfe25758d05d3e22d00f0f2ecd953f3c5dbe3dd1b2881a14b85",
       "previousReleaseSha256": "3a2a1f24304ebdfe25758d05d3e22d00f0f2ecd953f3c5dbe3dd1b2881a14b85"
     },
     {
       "name": "history-ledger.css",
-      "sha256": "158e0c2677c0f02d53ed9268a66649493033291ca91074fe2924f294c2196f48",
+      "sha256": "995f196eed54c6cc76faa2aa26fbfb1b24d84ba196c4d43f07c2d0e0904a8c98",
       "previousPublishedSha256": "c0f82d637bb96ec9ff8f98b9fd751aee2627649c2aeced8f670f8310f88506fc",
       "previousReleaseSha256": "c0f82d637bb96ec9ff8f98b9fd751aee2627649c2aeced8f670f8310f88506fc"
     },
     {
       "name": "history-ledger.js",
-      "sha256": "e0033815bb76c1fbfb148b05455af29e0d68399a57fe36078438c706cba1f4c1",
+      "sha256": "ccdd1c4def2c3aa0728a34b9576e002ce46c3c7e305062a04e063f36615af100",
       "previousPublishedSha256": "0e9c8fb14e939263780b1efbeb1a6bfb0a41e94b6c73b3106e28655de045f975",
       "previousReleaseSha256": "0e9c8fb14e939263780b1efbeb1a6bfb0a41e94b6c73b3106e28655de045f975"
     },
     {
       "name": "index.html",
-      "sha256": "6e12b6df2df824b1f5e0a628d3dd86772a08875b5d2ca0b056abd405229c09bb",
+      "sha256": "cba3ba210aeb97585c8fa822d60e525367aae4027d906509cf0b6a04dc935c74",
       "previousPublishedSha256": "25d17d94ac4cbf6d5a9cdb6beb5fe6858cc303cd9f8d98a549f8576821a0ee23",
       "previousReleaseSha256": "25d17d94ac4cbf6d5a9cdb6beb5fe6858cc303cd9f8d98a549f8576821a0ee23"
     },
@@ -42,7 +42,7 @@
     },
     {
       "name": "model.js",
-      "sha256": "37ffd213b353ad505e309d108bef0946471262080a0e2b4c9e061f4a2e5eb892",
+      "sha256": "c6506983560a54be0f053a32a6c3da4f58da529d93cf2ab9b8b0e205021cf60a",
       "previousPublishedSha256": "37ffd213b353ad505e309d108bef0946471262080a0e2b4c9e061f4a2e5eb892",
       "previousReleaseSha256": "37ffd213b353ad505e309d108bef0946471262080a0e2b4c9e061f4a2e5eb892"
     },
@@ -89,8 +89,14 @@
       "previousReleaseSha256": "065e45b5674f9bf76670496e5472611b3fbd87fbeaf99336725430a9909cb687"
     },
     {
+      "name": "voice-ai.js",
+      "sha256": "44e2ddc68e3224ee51dd1596b8f987b24c76f405f12a9741d663cd5c65de90af",
+      "previousPublishedSha256": null,
+      "previousReleaseSha256": null
+    },
+    {
       "name": "voice-check.html",
-      "sha256": "5ca9b282a4d2da63d241bd5d293295646b893882ab2b423fe5df1efa1ee69f0f",
+      "sha256": "6cd3244202d9a7a51904bfac0b04e6c21cb23b42ee9bff91be734b6153db71cf",
       "previousPublishedSha256": "a7cdca330ecb5a1e77e47187801b51b79b7bf6309a0b8fb9df6b5e70d7c6c70a",
       "previousReleaseSha256": "a2fff77899acc09cf9829c43da4df138ba1f8b00a3ead3ebf4083ca5c5cf21aa"
     },
@@ -102,31 +108,31 @@
     },
     {
       "name": "voice-input.js",
-      "sha256": "5e97bd716379b6bc376d0911070d3380697254e08b10a6a1413161d311a85085",
-      "previousPublishedSha256": "5e97bd716379b6bc376d0911070d3380697254e08b10a6a1413161d311a85085",
-      "previousReleaseSha256": "5e97bd716379b6bc376d0911070d3380697254e08b10a6a1413161d311a85085"
+      "sha256": "0dd19677d7c9a431232e9a173a7c45c97194237465087da8ca74ce44cb1270b1",
+      "previousPublishedSha256": "0dd19677d7c9a431232e9a173a7c45c97194237465087da8ca74ce44cb1270b1",
+      "previousReleaseSha256": "0dd19677d7c9a431232e9a173a7c45c97194237465087da8ca74ce44cb1270b1"
     },
     {
       "name": "workspace-app.js",
-      "sha256": "b85a2733b8ee345c42787ae69e846202945a7d8a784f439235041085dc987960",
+      "sha256": "e731b1ca09884448962f4d17f970ce6988d5dfcceeda4bb6ce66c36ba8772148",
       "previousPublishedSha256": "34d6c05e66a498786c3e3a884819e73a1dc0bf0f3135cdaf5f90e97f088c4476",
       "previousReleaseSha256": "a2c5312488e7748bbe8104c13dab666420b49d06d2daf58a52ffa24ccca565df"
     },
     {
       "name": "workspace-forms.js",
-      "sha256": "4342a1cb5c7077eaa91767decbe3cfbdadddf4f4229a29dfcdec594d42d9f856",
+      "sha256": "e455769bd4273ea541c5808bcdb74c9c1d1583f3744d769ea099ac4803d97af2",
       "previousPublishedSha256": "4342a1cb5c7077eaa91767decbe3cfbdadddf4f4229a29dfcdec594d42d9f856",
       "previousReleaseSha256": "4342a1cb5c7077eaa91767decbe3cfbdadddf4f4229a29dfcdec594d42d9f856"
     },
     {
       "name": "workspace-ui.js",
-      "sha256": "439c594eff5a32cdf55cdbe35486653e4a73cd10d47db81dbfee5d070f2f8bc6",
+      "sha256": "0e6ac1a84a7ad17662e48a8daea283b94be70208075788723d0968aee2287a4f",
       "previousPublishedSha256": "439c594eff5a32cdf55cdbe35486653e4a73cd10d47db81dbfee5d070f2f8bc6",
       "previousReleaseSha256": "439c594eff5a32cdf55cdbe35486653e4a73cd10d47db81dbfee5d070f2f8bc6"
     },
     {
       "name": "workspace.css",
-      "sha256": "294afa8e739098ab7361c8864cabdc324bcefb0561a75f24a5087f91f3b116aa",
+      "sha256": "0bc233609c5963fa9c009d7d0709c0a8c1e52e3a809c837d3c2f241980eeacba",
       "previousPublishedSha256": "294afa8e739098ab7361c8864cabdc324bcefb0561a75f24a5087f91f3b116aa",
       "previousReleaseSha256": "294afa8e739098ab7361c8864cabdc324bcefb0561a75f24a5087f91f3b116aa"
     },
